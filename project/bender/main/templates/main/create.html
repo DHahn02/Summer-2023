@@ -1,14 +1,95 @@
-{% extends "main/base.html" %}
-{% block title %}Create New List{% endblock %}
+{% extends 'main/base.html' %}
+{% block title %}Home{% endblock %}
+{% block content_head %}
+    <h1>Home</h1>
+{% endblock %}
+{% block style %}
+    <style>
+    .form-control:focus{
+        background-color:rgba(2, 200, 200, 0.1);
+    }
+    .invisible{
+        display: none;
+    }
+        .results-card{
+            width:100%;
+            box-shadow: 0 8px 8px 0 rgba(0,0,0,0.25);
+            transition:0.5s;
+            border-radius: 7px;
+            padding:15px 15px;
+        }
+        .item{
+            text-decoration: none;
+        }
+
+    </style>
+{% endblock %}
+{% block script %}
+
+{% endblock %}
+<!--------------------------------------------------------------->
 {% block content %}
-    <h3>Create Page</h3>
-    <form method="post" action="/create/" class="form-group">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <button type="submit" name="save" class="btn btn-success">Create New</button>
-                {{ form.name }}
-            </div>
-        </div>
-    </form>
+
+    <div class="input-group">
+        <form autocomplete="off" id="search" class="input-group">
+            {% csrf_token %}
+            <input type="text" id="searchbar" class="form-control" placeholder="Search for a team or performer" name="search">
+        </form>
+        <div id="results" class="results-card invisible"></div>
+    </div>
+
+
+    <script type="text/javascript">
+        const url = window.location.href;
+        const search_form = document.getElementById("search");
+        const input = document.getElementById("searchbar");
+        const results = document.getElementById("results");
+        const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+
+        const sendSearchData = (event) => {
+            $.ajax({
+               type:'POST',
+               url: '/search/',
+               data: {
+                   'csrfmiddlewaretoken':token,
+                   'event': event
+               },
+               success: (response)=> {
+                   console.log(response.data);
+                   const data = response.data;
+                   if(Array.isArray(data)){
+                       results.innerHTML = ``;
+                       data.forEach(result=>{
+                           if(!result.team1){
+                               if(result.location){
+                                   results.innerHTML +=
+                                   `<a href="team/${result.key}" class="item"><h5>${result.location} ${result.name}</h5></a>`
+                               }else{
+                                   results.innerHTML +=
+                                   `<a href="performer/${result.key}" class="item"><h5>${result.name}</h5></a>`
+                               }
+                           }
+                       });
+                   }else{
+                       if(input.value.length > 0){
+                           results.innerHTML = `<b>${data}</b>`
+                       }else{
+                           results.classList.add("invisible");
+                       }
+                   }
+               },
+               error: (error) => {
+                console.log(error);
+               }
+            });
+        }
+
+        input.addEventListener('keyup', e=>{
+            if(results.classList.contains("invisible")) {
+                results.classList.remove("invisible");
+            }
+
+            sendSearchData(e.target.value);
+        });
+    </script>
 {% endblock %}

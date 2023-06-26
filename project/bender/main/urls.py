@@ -5,8 +5,15 @@ from . import views
 urlpatterns = [
     path("", views.home, name='home'),
     path("home/", views.home, name='home'),
-    path("<int:id>", views.index, name="index"),
-    path("create/", views.create, name="create"),
-    path("view/", views.view, name="view"),
-    # path("event/<slug:slug>", views.search, name="search")
+    path("sell/", views.create, name="create"),
+    path("management/", views.management, name="management"),
+    path("search/", views.search_results, name="search"),
+    path("event/<slug:id>/", views.event_view, name="event"),
+    path("team/<slug:id>/", views.team_view, name="team"),
+    path("performer/<slug:id>/", views.performer_view, name="performer"),
+    path("sell/", views.sell, name="sell"),
+    path("sell/team/<slug:id>/", views.team_view, name="team_sell"),
+    path("sell/performer/<slug:id>", views.performer_view, name="performer_sell"),
+    path("sell/event/<slug:id>/", views.sell_tickets, name="sell-tickets"),
+    path("buy/<slug:id>/", views.buy, name="buy"),
 ]
