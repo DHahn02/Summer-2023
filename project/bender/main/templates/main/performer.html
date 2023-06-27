@@ -1,0 +1,50 @@
+{% extends 'main/base.html' %}
+{% block title %}{{ performer.name }} Tickets{% endblock %}
+{% block style %}
+<style type="text/css">
+    .heading{
+        text-align: center;
+        margin-bottom: 80px;
+    }
+
+    .location{
+
+    }
+
+    .div-link{
+        text-decoration: none;
+    }
+    .div-link:hover{
+        text-decoration: none;
+    }
+    .card{
+
+    }
+    .card:hover{
+        background: rgb(230,230,230);
+    }
+
+    .date{
+        float: right;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <h1 class="heading">{{ performer.name }} Tickets</h1>
+    {%  if not events %}
+        <h2>Sorry, there are no scheduled events for {{ performer.name }} right now. Please check again when new performance dates are released. </h2>
+    {% endif %}
+{% for event in events %}
+    <a href="{{ path }}event/{{ event.id }}" class="card div-link">
+    <div class="card">
+        <div class="card-title">
+            {{ performer.name }} at {{ event.location }}
+        </div>
+        <div class="card-text">
+            <div class="location">{{ event.location }}</div>
+            <div class="date">{{ event.date }}</div>
+        </div>
+    </div>
+    </a>
+{% endfor %}
+{% endblock %}

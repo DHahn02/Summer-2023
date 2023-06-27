@@ -1,0 +1,80 @@
+{% extends 'main/base.html' %}
+{% block title %}Management{% endblock %}
+{% block style %}
+<style>
+    body {
+        background: #007bff;
+    }
+    .form {
+        position: sticky;
+        top:10%;
+        margin-top:30px;
+        background: #007bff;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {% if user.is_superuser %}
+        <div class="form">
+            <h2>Add a Venue</h2>
+            <form method="post" action="/management/" class="form-group">
+                {% csrf_token %}
+                <div class="" id="venue">
+                    <div class="">
+                        {{ venue_form | crispy }}
+                        <button type="submit" name="{{ venue_form.prefix }}" class="btn btn-success">Add Venue</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="form">
+            <h2>Add a Team</h2>
+            <form method="post" action="/management/" class="form-group">
+                {% csrf_token %}
+                <div class="" id="team">
+                    <div class="">
+                        {{ team_form | crispy }}
+                        <button type="submit" name="{{ team_form.prefix }}" class="btn btn-success">Add Team</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+        <div class="form">
+            <h2>Add a Performer</h2>
+            <form method="post" action="/management/" class="form-group">
+                {% csrf_token %}
+                <div class="" id="performer">
+                    <div class="">
+                        {{ performer_form | crispy }}
+                        <button type="submit" name="{{ performer_form.prefix }}" class="btn btn-success">Add Performer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="form">
+        <h2>Add an Event</h2>
+            <form method="post" action="/management/" class="form-group">
+                {% csrf_token %}
+                <div class="" id="event">
+                    <div class="">
+                        {{ event_form | crispy }}
+                        <button type="submit" name="{{ event_form.prefix }}" class="btn btn-success">Add Event</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% for event in events %}
+            .
+        {% endfor %}
+    {% else %}
+        <h1>404 - Access Denied</h1>
+    {% endif %}
+{% endblock %}

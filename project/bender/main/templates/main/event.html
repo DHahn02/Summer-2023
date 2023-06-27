@@ -1,0 +1,95 @@
+{% extends 'main/base.html' %}
+{% load template_filters %}
+{% block title %}{{ event }} Tickets{% endblock %}
+{% block style %}
+<style type="text/css">
+    .heading{
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .date{
+        text-align: center;
+    }
+    .top{
+        margin-top: 15px;
+        margin-bottom: 50px;
+        position: relative;
+    }
+    .ticket{
+        text-decoration: none;
+        color:black;
+        display: flex;
+        justify-content: space-between;
+        border-radius: 20px;
+        border: 4px solid rgba(80, 80, 80, .25);
+        padding: 10px 25px;
+        margin: 20px 10px;
+    }
+    .ticket-title{
+        color: #007bff;
+        font-weight: bold;
+    }
+    .head:hover {
+        text-decoration: none;
+    }
+    .buy {
+        background: #007bff;
+        color:white;
+        border-radius: 10%;
+        border: none;
+        max-width: 20%;
+    }
+    .buy:hover{
+        text-decoration: none;
+        color: white;
+    }
+    .buy div {
+        position: relative;
+        top:10%;
+        text-align: center;
+        font-weight: bold;
+        padding: 15px;
+    }
+    .tickets {
+        overflow-y: auto;
+    }
+    .description p{
+        display: inline-block;
+        margin-right: 20px;
+    }
+    .description p:before{
+        content: "- ";
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <div class="top">
+        {% if event.performer %}
+            <h1 class="heading">Tickets for {{ event.performer.name }} at {{ event.location}}</h1>
+        {% else %}
+            <h1 class="heading">Tickets for {{ event.team1 }} vs {{ event.team2}}</h1>
+        {% endif %}
+        <h2 class="date">{{ event.date }}</h2>
+    </div>
+
+    <div class="tickets">
+        {% for ticketpack in ticketpacks %}
+            {% if ticketpack.for_sale and available|get_item:ticketpack > 0 %}
+                <div class="head ticket">
+                    <div class="left">
+                        <h5 class="ticket-title">Section {{ ticketpack.section }}. {{ available|get_item:ticketpack }} Ticket{% if available|get_item:ticketpack != 1 %}s{% endif %} Available.</h5>
+                        <div class="description">
+                            <p>Row {{ ticketpack.row }}</p>
+                            <p>${{ ticketpack.price }}</p>
+                        </div>
+                    </div>
+                    <a href="/buy/{{ ticketpack.id }}" class="buy"><div>Buy a Ticket</div></a>
+                </div>
+                {% for ticket in ticketpack.ticket_set.all %}
+                    {% if ticket.for_sale %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

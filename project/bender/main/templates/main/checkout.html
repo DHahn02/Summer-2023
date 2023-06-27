@@ -1,0 +1,44 @@
+{% extends 'main/base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block style %}
+<style type="text/css">
+    .content{
+    }
+    .receipt{
+        border: 2px solid rgba(80, 80, 80, 0.25);
+        border-radius: 10px;
+        padding: 20px 10px 20px 10px;
+    }
+    .receipt ul{
+        text-align: left;
+        text-decoration: none;
+        list-style-type: none;
+        margin-left: -30px;
+    }
+    .receipt ul li{
+        margin: 0 auto;
+        font: 20px Garamond;
+    }
+    .buy{
+        background: #007bff;
+        color: black;
+        border-radius: 20px;
+        width: 200px;
+        text-align: center;
+        max-height: 40px;
+        font: 30px "Times New Roman";
+        border: 1px solid black;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <div class="receipt">
+        <ul>
+            <li>Base Price: ${{ ticket.price }}</li>
+            <li>Fees: $0</li>
+            <li>Tax: ${{ tax }}</li>
+            <li class="total">Total: ${{ total }}</li>
+        </ul>
+    </div>
+    <a href="/success"><div class="buy">Checkout</div></a>
+{% endblock %}
