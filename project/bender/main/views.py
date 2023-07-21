@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from .forms import *
 from django.utils import timezone
+from django.core.mail import send_mail
 
 
 # Create your views here.
@@ -106,7 +107,11 @@ def home(response):
     events = Event.objects.all()
     teams = Team.objects.all()
     performers = Performer.objects.all()
-    return render(response, "main/home.html", {"events": events, "teams": teams, "performers": performers})
+    if response.user.is_authenticated:
+        name = response.user.first_name
+    else:
+        name = ""
+    return render(response, "main/home.html", {"events": events, "teams": teams, "performers": performers, "first_name": name})
 
 
 def event_view(request, id):
@@ -170,12 +175,37 @@ def buy(request, id):
     tickets = ticketpack.ticket_set.all()
     if len(tickets) == 1:
         return HttpResponseRedirect("/failure")
-    ticket = tickets[len(tickets)-1]
-    ticket.in_cart = True
+    ticket = tickets[len(tickets) - 1]
+    if not ticket.in_cart:
+        ticket.in_cart = True
+        ticket.for_sale = False
+        ticket.time_reserved = timezone.now()
+        ticket.save()
+    time_left = (ticket.time_reserved + timezone.timedelta(minutes=15)) - timezone.now()
+    time_left = int(time_left.total_seconds())
+    if time_left <= 0 and not ticket.for_sale:
+        ticket.in_cart = False
+        ticket.for_sale = True
+        ticket.time_reserved = None
+        ticket.save()
+    return render(request, 'main/checkout.html',
+                  {"ticket": ticket, "tax": ticket.price * 0.075, "total": ticket.price * 1.075,
+                   "time_remaining": time_left})
+
+
+def success(request, id):
+    ticket = Ticket.objects.get(id=id)
     ticket.for_sale = False
-    ticket.time_reserved = timezone.now()
+    ticket.user = request.user
+    ticket.time_reserved = None
     ticket.save()
-    return render(request, 'main/checkout.html', {"ticket": ticket, "tax": ticket.price * 0.075, "total": ticket.price*1.075})
+    send_mail("Your Receipt from Bender", "You spent " + str(ticket.price*1.075) + " on your ticket.", "shimmied@gmail.com", [request.user.email], fail_silently=False,)
+    return render(request, "main/success.html", {})
+
+
+def ticket_list(request):
+    tickets = request.user.ticket_set.all()
+    return render(request, "main/ticket_list.html", {"tickets": tickets})
 
 
 def sell_tickets(request, id):
@@ -195,7 +225,8 @@ def sell_tickets(request, id):
             if method == "1":
                 for i in range(0, amount):
                     print(pack)
-                    ticket = Ticket(user=request.user, group=pack, game=event, section=section, row=row, seat=start+i, price=price, method=Ticket.Delivery.ELEC)
+                    ticket = Ticket(user=request.user, group=pack, game=event, section=section, row=row, seat=start + i,
+                                    price=price, method=Ticket.Delivery.ELEC)
                     if i == 0:
                         ticket.for_sale = False
                     ticket.save()
@@ -224,7 +255,7 @@ def search_results(request):
             for event in Event.objects.all():
                 if event.team1 and event.team1.name.lower().startswith(term.lower()) or not (
                         not event.team2 or not event.team2.name.lower().startswith(
-                        term.lower())) or event.performer and event.performer.name.lower().startswith(term.lower()):
+                    term.lower())) or event.performer and event.performer.name.lower().startswith(term.lower()):
                     if event.date > timezone.now():
                         events.append(event)
             for team in Team.objects.all():

@@ -64,10 +64,11 @@
             <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
                     {% if user.is_superuser %}<li class="nav-item"><a href="/admin" class="nav-link">Admin</a></li>{% endif %}
                     {% if user.is_authenticated %}
+                    <li class="nav-item"><a href="/register/profile" class="nav-link">Profile</a></li>
                     <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
                     {% else %}
                     <li class="nav-item"><a href="/login" class="nav-link">Log In</a></li>
-                    <li class="nav-item"><a href="/create" class="nav-link">Create an Account</a></li>
+                    <li class="nav-item"><a href="/register/create" class="nav-link">Create an Account</a></li>
                     {% endif %}
             </ul>
             <ul class="navbar-nav">

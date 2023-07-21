@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Setup Your Profile{% endblock %}
+{% block style %}
+
+
+{% endblock %}
+{% block content %}
+    <h1>Change {{ name }}'s Profile</h1>
+    <form method="post" class="form-group">
+        {% csrf_token %}
+        {{ u_form|crispy }}
+        {{ p_form|crispy }}
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+{% endblock %}

@@ -16,4 +16,6 @@ urlpatterns = [
     path("sell/performer/<slug:id>", views.performer_view, name="performer_sell"),
     path("sell/event/<slug:id>/", views.sell_tickets, name="sell-tickets"),
     path("buy/<slug:id>/", views.buy, name="buy"),
+    path("success/<slug:id>/", views.success, name="success"),
+    path("ticket_list/", views.ticket_list, name="ticket_list")
 ]

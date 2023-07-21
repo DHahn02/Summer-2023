@@ -21,7 +21,12 @@
         .item{
             text-decoration: none;
         }
-
+        .welcome{
+            color:#007bff;
+            font-family: "capeasimo", serif;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
 {% endblock %}
 {% block script %}
@@ -29,7 +34,7 @@
 {% endblock %}
 <!--------------------------------------------------------------->
 {% block content %}
-
+    <h1 class="welcome">Hello, {{ first_name }}</h1>
     <div class="input-group">
         <form autocomplete="off" id="search" class="input-group">
             {% csrf_token %}

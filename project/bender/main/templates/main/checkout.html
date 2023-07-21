@@ -8,6 +8,8 @@
         border: 2px solid rgba(80, 80, 80, 0.25);
         border-radius: 10px;
         padding: 20px 10px 20px 10px;
+        display: flex;
+        justify-content: space-evenly;
     }
     .receipt ul{
         text-align: left;
@@ -23,22 +25,69 @@
         background: #007bff;
         color: black;
         border-radius: 20px;
-        width: 200px;
+        width: auto;
         text-align: center;
         max-height: 40px;
         font: 30px "Times New Roman";
         border: 1px solid black;
+        margin: 20px;
+    }
+    .underline {
+        text-decoration: underline;
+    }
+    .hr {
+        color:black;
     }
 </style>
 {% endblock %}
 {% block content %}
+    <h1>Your tickets will be held for another <span class="time" id="time"></span></h1>
     <div class="receipt">
+        <ul>
+            <li class="underline">Your Ticket</li>
+            <li>Section {{ ticket.section }}</li>
+            <li>Row {{ ticket.row }}</li>
+            <li>Seat {{ ticket.seat }}</li>
+        </ul>
         <ul>
             <li>Base Price: ${{ ticket.price }}</li>
             <li>Fees: $0</li>
-            <li>Tax: ${{ tax }}</li>
+            <li class="">Tax: ${{ tax }}</li>
+            <hr class="hr">
             <li class="total">Total: ${{ total }}</li>
         </ul>
     </div>
-    <a href="/success"><div class="buy">Checkout</div></a>
+
+    <a href="/success/{{ ticket.id }}"><div class="buy">Checkout ${{ total }}</div></a>
+
+    <script type="text/javascript">
+        const timer_span = document.getElementById("time");
+        let seconds_remaining = {{ time_remaining }};
+        let minutes = Math.floor(seconds_remaining / 60);
+        let seconds = seconds_remaining % 60;
+
+        function startTimer(duration, display){
+            let timer = duration, minutes, seconds;
+            setInterval(function () {
+               minutes = parseInt(timer / 60, 10);
+               seconds = parseInt(timer % 60, 10);
+
+               minutes = minutes < 10 ? "0" + minutes : minutes;
+               seconds = seconds < 10 ? "0" + seconds : seconds;
+
+               display.innerHTML = minutes + ":" + seconds;
+
+               if(--timer === 0){
+                   console.log("finished");
+                   window.location.reload();
+               }else if(timer < 0){
+                   display.innerHTML = "00:00"
+               }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            startTimer(seconds_remaining, timer_span)
+        }
+    </script>
 {% endblock %}

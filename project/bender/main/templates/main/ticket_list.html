@@ -1,0 +1,12 @@
+{% extends 'main/base.html' %}
+{% block title %}Your Tickets{% endblock %}
+{% block style %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+{% block content %}
+    {% for ticket in tickets %}
+    <div>{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</div>
+    {% endfor %}
+{% endblock %}
