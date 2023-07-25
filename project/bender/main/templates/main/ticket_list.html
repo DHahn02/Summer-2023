@@ -2,11 +2,30 @@
 {% block title %}Your Tickets{% endblock %}
 {% block style %}
 <style type="text/css">
-
+    .ticket{
+        font:1.3em Verdana, Serif;
+        color:#007bff;
+    }
+    .buyer{
+        margin-left: 20px;
+        color: black;
+    }
 </style>
 {% endblock %}
 {% block content %}
-    {% for ticket in tickets %}
-    <div>{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</div>
+    <h2>Your Tickets</h2>
+    {% for ticket in bought %}
+        <div class="ticket"><a href="/edit_ticket/{{ ticket.id }}/">{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</a></div>
+    {% endfor %}
+
+    <h2>For Sale</h2>
+    {% for ticket in for_sale %}
+        <div class="ticket"><a href="/edit_ticket/{{ ticket.id }}/">{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</a></div>
+    {% endfor %}
+
+    <h2>Sold</h2>
+    {% for ticket in sold %}
+        <div class="ticket">{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</div>
+        <div class="buyer ticket">Sold to {{ ticket.user.first_name }}. Email at <a href="mailto:{{ ticket.user.email }}">{{ ticket.user.email }}</a></div>
     {% endfor %}
 {% endblock %}

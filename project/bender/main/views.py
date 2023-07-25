@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from .forms import *
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -120,11 +120,12 @@ def event_view(request, id):
     available = {}
     for ticketpack in ticketpacks:
         num_available = 0
-        tickets = ticketpack.ticket_set.all()
-        for ticket in tickets:
-            if ticket.user == ticketpack.user and ticket.for_sale and not ticket.in_cart:
-                num_available += 1
-            available[ticketpack] = num_available
+        if ticketpack.user != request.user:
+            tickets = ticketpack.ticket_set.all()
+            for ticket in tickets:
+                if ticket.user == ticketpack.user and ticket.for_sale and not ticket.in_cart:
+                    num_available += 1
+                available[ticketpack] = num_available
     return render(request, 'main/event.html', {"event": event, "ticketpacks": ticketpacks, "available": available})
 
 
@@ -199,13 +200,58 @@ def success(request, id):
     ticket.user = request.user
     ticket.time_reserved = None
     ticket.save()
-    send_mail("Your Receipt from Bender", "You spent " + str(ticket.price*1.075) + " on your ticket.", "shimmied@gmail.com", [request.user.email], fail_silently=False,)
+    send_mail("Your Receipt from Bender", "You spent " + str(ticket.price*1.075) + " on your ticket.", "shimmiedtest@gmail.com", [request.user.email], fail_silently=False,)
     return render(request, "main/success.html", {})
 
 
 def ticket_list(request):
-    tickets = request.user.ticket_set.all()
-    return render(request, "main/ticket_list.html", {"tickets": tickets})
+    all_tickets = request.user.ticket_set.all()
+    for_sale_tickets = []
+    sold_tickets = []
+    bought_tickets = []
+    for ticket in all_tickets:
+        if ticket.group.user == request.user:
+            if ticket.for_sale:
+                for_sale_tickets.append(ticket)
+            else:
+                if ticket.user != request.user:
+                    sold_tickets.append(ticket)
+                else:
+                    bought_tickets.append(ticket)
+        else:
+            bought_tickets.append(ticket)
+    for pack in request.user.ticketpack.all():
+        for ticket in pack.ticket_set.all():
+            if ticket.user != request.user:
+                sold_tickets.append(ticket)
+
+    return render(request, "main/ticket_list.html", {"bought": bought_tickets, "sold": sold_tickets, "for_sale": for_sale_tickets})
+
+
+def edit_ticket(request, id):
+    ticket = Ticket.objects.get(id=id)
+    if request.user == ticket.user and request.user == ticket.group.user:
+        initial = {
+            "price": ticket.price,
+            "for_sale": ticket.for_sale,
+        }
+        if request.method == 'POST':
+            form = EditTicketForm(request.POST, initial=initial)
+            if form.is_valid():
+                for_sale = form.cleaned_data['for_sale']
+                price = form.cleaned_data['price']
+                ticket_group = ticket.group
+                ticket.for_sale = for_sale
+                ticket.save()
+                for t in ticket_group.ticket_set.all():
+                    if t.for_sale:
+                        t.price = price
+                        t.save()
+        else:
+            form = EditTicketForm(initial=initial)
+        return render(request, "main/ticketedit.html", {"form": form, "ticket": ticket})
+    else:
+        raise Http404
 
 
 def sell_tickets(request, id):

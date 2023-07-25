@@ -79,3 +79,11 @@ class NewVenue(forms.Form):
         fields = ['name', 'location']
 
 
+class EditTicketForm(forms.Form):
+    price = forms.IntegerField(label="Price (USD. Applies to all tickets in group)")
+    for_sale = forms.BooleanField(label="For Sale", required=False)
+
+    class Meta:
+        model = Ticket
+        fields = ['price', 'for_sale']
+

@@ -59,6 +59,7 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="/sell">Sell Tickets</a></li>
+                {% if user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="/ticket_list">My Tickets</a></li>{% endif %}
                 {% if user.is_superuser %}<li class="nav-item"><a class="nav-link" href="/management">Manage Events</a></li>{% endif %}
             </ul>
             <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">

@@ -48,7 +48,7 @@ class Event(models.Model):
         if self.performer is None:
             return self.team1.name + " vs " + self.team2.name + " at " + self.location.name + ". " + self.date.date().__str__()
         else:
-            return self.performer.name + " at " + self.location.name
+            return self.performer.name + " at " + self.location.name + ". " + self.date.date().__str__()
 
 
 class TicketPack(models.Model):
