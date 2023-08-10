@@ -41,6 +41,14 @@ class Event(models.Model):
     team1 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="home", null=True, blank=True)
     team2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="away", null=True, blank=True)
     performer = models.ForeignKey(Performer, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Leagues(models.TextChoices):
+        MLB = "MLB", "MLB"
+        NHL = "NHL", "NHL"
+        NFL = "NFL", "NFL"
+        NBA = "NBA", "NBA"
+
+    # league = models.CharField(choices=Leagues.choices, null=True, blank=True, default=None, max_length=20)
     date = models.DateTimeField()
     location = models.ForeignKey(Venue, on_delete=models.SET_NULL, null=True)
 

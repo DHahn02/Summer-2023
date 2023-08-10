@@ -60,9 +60,45 @@
     .description p:before{
         content: "- ";
     }
+    .options{
+        display: flex;
+        text-align: center;
+        font: 20px Garamond sans-serif;
+        margin: auto;
+    }
+    .tab{
+        margin: 10px auto;
+        padding: 5px 10px;
+        border-radius: 8px;
+    }
+    .activeTab{
+        background: #007bff;
+        color: white;
+    }
+    .inactiveTab{
+        background: white;
+        color: #007bff;
+    }
+    .inactive{
+        display: none;
+        visibility: hidden;
+    }
+    .h2{
+        text-align: center;
+    }
+    .profile_photo{
+        max-height: 50px;
+    }
 </style>
 {% endblock %}
 {% block content %}
+    {% if user.is_authenticated %}
+    <div class="options">
+        <div id="mainTab" class="tab activeTab">Main</div>
+        <div id="altTab" class="tab inactiveTab">Match Me</div>
+    </div>
+    {% endif %}
+
     <div class="top">
         {% if event.performer %}
             <h1 class="heading">Tickets for {{ event.performer.name }} at {{ event.location}}</h1>
@@ -71,8 +107,12 @@
         {% endif %}
         <h2 class="date">{{ event.date }}</h2>
     </div>
+    {% if not ticketpacks %}
+        <h2 class="h2">There are no tickets being sold currently. Please try again later.</h2>
+    {% endif %}
 
-    <div class="tickets">
+    <div id="main" class="tickets active">
+        <h2 class="h2">All Tickets</h2>
         {% for ticketpack in ticketpacks %}
             {% if ticketpack.for_sale and available|get_item:ticketpack > 0 %}
                 <div class="head ticket">
@@ -92,4 +132,63 @@
             {% endif %}
         {% endfor %}
     </div>
+    <div id="alt" class="tickets inactive">
+        <h2 class="h2">Find a Friend</h2>
+        {% for ticketpack in alt_ticketpacks %}
+            {% if ticketpack.for_sale and available|get_item:ticketpack > 0 %}
+                <div class="head ticket">
+                    <div class="left">
+                        <h5 class="ticket-title">Section {{ ticketpack.section }}. {{ available|get_item:ticketpack }} Ticket{% if available|get_item:ticketpack != 1 %}s{% endif %} Available.</h5>
+                        <div class="description">
+                            <p>Row {{ ticketpack.row }}</p>
+                            <p>${{ ticketpack.price }}</p>
+                        </div>
+                    </div>
+                    <div class="center">
+                        Go to the game with <a href="">{{ ticketpack.user.first_name }}</a>
+                        <img class="profile_photo" src="https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg">
+                    </div>
+                    <a href="/buy/{{ ticketpack.id }}" class="buy"><div>Buy a Ticket</div></a>
+                </div>
+                {% for ticket in ticketpack.ticket_set.all %}
+                    {% if ticket.for_sale %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <script type="text/javascript">
+        const mainTab = document.getElementById("mainTab");
+        const altTab = document.getElementById("altTab");
+        const main = document.getElementById("main");
+        const alt = document.getElementById("alt");
+
+        mainTab.addEventListener('click', e=>{
+            if(main.classList.contains("inactive")){
+                main.classList.remove("inactive");
+                main.classList.add("active");
+                alt.classList.remove("active");
+                alt.classList.add("inactive");
+                mainTab.classList.remove("inactiveTab");
+                mainTab.classList.add("activeTab");
+                altTab.classList.remove("activeTab");
+                altTab.classList.add("inactiveTab");
+            }
+        });
+
+        altTab.addEventListener('click', e=>{
+            if(alt.classList.contains("inactive")){
+                alt.classList.remove("inactive");
+                alt.classList.add("active");
+                main.classList.remove("active");
+                main.classList.add("inactive");
+                altTab.classList.remove("inactiveTab");
+                altTab.classList.add("activeTab");
+                mainTab.classList.remove("activeTab");
+                mainTab.classList.add("inactiveTab");
+            }
+        });
+
+    </script>
 {% endblock %}

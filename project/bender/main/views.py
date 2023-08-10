@@ -1,8 +1,11 @@
+import heapq
+
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from .forms import *
 from django.utils import timezone
 from django.core.mail import send_mail
+from heapq import heappush, heappop, heapify
 
 
 # Create your views here.
@@ -118,6 +121,7 @@ def event_view(request, id):
     event = Event.objects.get(id=id)
     ticketpacks = event.ticketpack_set.all()
     available = {}
+    heap = []
     for ticketpack in ticketpacks:
         num_available = 0
         if ticketpack.user != request.user:
@@ -125,8 +129,34 @@ def event_view(request, id):
             for ticket in tickets:
                 if ticket.user == ticketpack.user and ticket.for_sale and not ticket.in_cart:
                     num_available += 1
-                available[ticketpack] = num_available
-    return render(request, 'main/event.html', {"event": event, "ticketpacks": ticketpacks, "available": available})
+            available[ticketpack] = num_available  # if any issues, re-indent this line
+            if num_available > 0 and request.user.is_authenticated:
+                heapq.heappush(heap, (getScore(request.user, ticketpack.user, ticketpack.game), len(heap), ticketpack))
+    heaped = [heapq.heappop(heap)[2] for _ in range(len(heap))]
+    return render(request, 'main/event.html', {"user": request.user, "event": event, "ticketpacks": ticketpacks, "available": available, "alt_ticketpacks": heaped[::-1]})
+
+
+def getScore(buyer, seller, event):
+    score = 0
+    bp = buyer.userprofile
+    sp = seller.userprofile
+    if bp.mlb == sp.mlb:
+        score += 5
+    if bp.nfl == sp.nfl:
+        score += 5
+    if bp.nhl == sp.nhl:
+        score += 5
+    if bp.nba == sp.nba:
+        score += 5
+    if bp.gender == sp.gender:
+        score += 10
+    if abs(getAge(bp.birthdate) - getAge(sp.birthdate)) <= 5:
+        score += 3
+    return score
+
+
+def getAge(dob):
+    return timezone.now().year - dob.year
 
 
 def team_view(request, id):
