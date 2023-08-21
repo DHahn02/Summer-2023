@@ -16,8 +16,11 @@
     <h2>Your Tickets</h2>
     {% for ticket in bought %}
         <div class="ticket">
-            <a href="/edit_ticket/{{ ticket.id }}/">{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</a>
-            Going with {% for ticket in ticket.group.ticket_set.all %}{% if not ticket.for_sale %}<a href="/profile/{{ ticket.user.username }}">{{ ticket.user.first_name }}</a>{% endif %}{% endfor %}
+            <a href="/ticket/{{ ticket.id }}/">{{ ticket.game }}: Section {{ ticket.section }} Row {{ ticket.row }} Seat {{ ticket.seat }}</a>
+            <br>Going with
+            <ul>
+                {% for ticket in ticket.group.ticket_set.all %}{% if not ticket.for_sale and ticket.user != user %}<li><a href="/profile/{{ ticket.user.username }}">{{ ticket.user.first_name }}</a></li>{% endif %}{% endfor %}
+            </ul>
         </div>
     {% endfor %}
 
